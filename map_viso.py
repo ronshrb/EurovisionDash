@@ -1,4 +1,4 @@
-from libs.pandasql import sqldf
+from pandasql import sqldf
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import plotly.express as px
@@ -311,18 +311,34 @@ def create_viso(dfs, selected_year, group, selected_country):
         LEFT JOIN area_df as ad ON a.country=ad.country
     """
     scores_and_area = sqldf(query, locals())
-    eco_classes = pd.read_excel(r'Data\OGHIST.xlsx', sheet_name=2, skiprows=5)
-    filtered_eco_classes = eco_classes[eco_classes['Data for calendar year :'].isin(scores['country'])][
-        ['Data for calendar year :', 2016, 2017, 2018, 2019, 2021, 2022, 2023]]
-    eco_classes = pd.melt(filtered_eco_classes, id_vars=['Data for calendar year :'],
-                          var_name='Year', value_name='Economic Class')
+    # eco_classes = pd.read_excel(r'Data\OGHIST.xlsx', sheet_name=2, skiprows=5)
+    # filtered_eco_classes = eco_classes[eco_classes['Data for calendar year :'].isin(scores['country'])][
+    #     ['Data for calendar year :', 2016, 2017, 2018, 2019, 2021, 2022, 2023]]
+    # eco_classes = pd.melt(filtered_eco_classes, id_vars=['Data for calendar year :'],
+    #                       var_name='Year', value_name='Economic Class')
+    #
+    # # Rename the columns for clarity
+    # eco_classes.columns = ['Country', 'Year', 'Economic Class']
+    # most_frequent_eco_class = eco_classes.groupby('Country')['Economic Class'].agg(lambda x: x.mode()[0])
+    # print(most_frequent_eco_class)
+    data_dict = {
+        'Country': [
+            'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium',
+            'Bulgaria', 'Croatia', 'Cyprus', 'Denmark', 'Greece', 'Hungary',
+            'Israel', 'Moldova', 'Netherlands', 'Norway', 'Poland', 'Portugal',
+            'Romania', 'Sweden'
+        ],
+        'Economy Level': [
+            'UM', 'H', 'H', 'UM', 'UM', 'H',
+            'UM', 'H', 'H', 'H', 'H', 'H',
+            'H', 'LM', 'H', 'H', 'H', 'H',
+            'H', 'H'
+        ]
+    }
+    most_frequent_eco_class = pd.DataFrame(data_dict)
 
-    # Rename the columns for clarity
-    eco_classes.columns = ['Country', 'Year', 'Economic Class']
-    most_frequent_eco_class = eco_classes.groupby('Country')['Economic Class'].agg(lambda x: x.mode()[0])
-
-    # Reset index to convert the result back into a DataFrame
-    most_frequent_eco_class = most_frequent_eco_class.reset_index()
+    # # Reset index to convert the result back into a DataFrame
+    # most_frequent_eco_class = most_frequent_eco_class.reset_index()
 
     query = """
         SELECT
@@ -331,7 +347,7 @@ def create_viso(dfs, selected_year, group, selected_country):
             sa.lat,
             sa.lon,
             sa.type as Region,
-            ec.'Economic Class' as 'Economy Level'
+            ec.'Economy Level'
         FROM scores_and_area as sa
         LEFT JOIN most_frequent_eco_class as ec ON ec.Country=sa.country
     """
