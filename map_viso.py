@@ -3,7 +3,6 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import plotly.express as px
 import plotly.graph_objects as go
-
 def create_viso(dfs, selected_year, group, selected_country):
     country_coor = {
         "Andorra": (42.546245, 1.601554),
@@ -257,25 +256,33 @@ def create_viso(dfs, selected_year, group, selected_country):
 
     # turn country_coor into df
     coords_df = pd.DataFrame(data, columns=['country', 'lat', 'lon'])
-    scores = dfs['song_data']
-    scores = scores[scores['year']==selected_year]
 
+    scores = dfs['song_data']
+    # filter by the chosen year
+    scores = scores[scores['year']==selected_year]
+    # print(list(scores['semi_final']))
+    scores['semi_final'] = scores['semi_final'].replace('-', '0')
 
     query = """
         SELECT
             country,
-            final_total_points as 'Total Points'
+            final_total_points as 'Total Points',
+            CASE
+                WHEN semi_final = '0' THEN 'Top 5/Host'
+                WHEN semi_final = '1' THEN '1st Semi Final'
+                WHEN semi_final = '2' THEN '2nd Semi Final'
+                ELSE semi_final
+            END as 'Semi Final'
         FROM scores
-        WHERE qualified_10 = '1'
-        GROUP BY country
+        WHERE qualified_10 = '1' OR qualified_10 = '-'
         """
     scores = sqldf(query, locals())
-
     # merge with coords
     query = """
         SELECT
             a.country,
             a.'Total Points',
+            a.'Semi Final',
             c.lat,
             c.lon
         FROM scores as a
@@ -299,11 +306,12 @@ def create_viso(dfs, selected_year, group, selected_country):
     area_df = pd.DataFrame(area_data, columns=['country', 'type'])
 
 
-    # add area to avg_scores_with_coords
+    # add area to scores_with_coords
     query = """
         SELECT
             a.country,
             a.'Total Points',
+            a.'Semi Final',
             a.lat,
             a.lon,
             ad.type
@@ -311,16 +319,7 @@ def create_viso(dfs, selected_year, group, selected_country):
         LEFT JOIN area_df as ad ON a.country=ad.country
     """
     scores_and_area = sqldf(query, locals())
-    # eco_classes = pd.read_excel(r'Data\OGHIST.xlsx', sheet_name=2, skiprows=5)
-    # filtered_eco_classes = eco_classes[eco_classes['Data for calendar year :'].isin(scores['country'])][
-    #     ['Data for calendar year :', 2016, 2017, 2018, 2019, 2021, 2022, 2023]]
-    # eco_classes = pd.melt(filtered_eco_classes, id_vars=['Data for calendar year :'],
-    #                       var_name='Year', value_name='Economic Class')
-    #
-    # # Rename the columns for clarity
-    # eco_classes.columns = ['Country', 'Year', 'Economic Class']
-    # most_frequent_eco_class = eco_classes.groupby('Country')['Economic Class'].agg(lambda x: x.mode()[0])
-    # print(most_frequent_eco_class)
+
     data_dict = {
         'Country': [
             'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium',
@@ -337,15 +336,13 @@ def create_viso(dfs, selected_year, group, selected_country):
     }
     most_frequent_eco_class = pd.DataFrame(data_dict)
 
-    # # Reset index to convert the result back into a DataFrame
-    # most_frequent_eco_class = most_frequent_eco_class.reset_index()
-
     query = """
         SELECT
             sa.country,
             sa.'Total Points',
             sa.lat,
             sa.lon,
+            sa.'Semi Final',
             sa.type as Region,
             ec.'Economy Level'
         FROM scores_and_area as sa
@@ -365,7 +362,7 @@ def create_viso(dfs, selected_year, group, selected_country):
         'LM': 'Lower middle income',
         'UM': 'Upper middle income',
         'H': 'High income',
-        None: 'No information'  # Handle None values
+        None: 'No information'
     }
 
     # Map the values in the 'economy_level' column using the mapping dictionary
@@ -392,7 +389,6 @@ def create_viso(dfs, selected_year, group, selected_country):
         ]
     }
 
-    # Creating the DataFrame
     debut_df = pd.DataFrame(data)
 
     # Define a function to categorize debut years
@@ -417,6 +413,7 @@ def create_viso(dfs, selected_year, group, selected_country):
             sa.'Total Points',
             sa.lat,
             sa.lon,
+            sa.'Semi Final',
             sa.Region,
             sa.'Economy Level',
             d.'Debut Years' as 'Eurovision Debut Year'
@@ -463,6 +460,15 @@ def create_viso(dfs, selected_year, group, selected_country):
                 'Other': 'star'
             }
 
+            # colors = {
+            #     'Nordic': "green",
+            #     'Slavic': 'Cyan',
+            #     'Baltic': 'red',
+            #     'Mediterranean': 'gray',
+            #     'Western': 'Lime',
+            #     'Eastern': 'White',
+            #     'Other': 'pink'
+            # }
             colors = {
                 'Nordic': "green",
                 'Slavic': 'Cyan',
@@ -472,7 +478,7 @@ def create_viso(dfs, selected_year, group, selected_country):
                 'Eastern': 'White',
                 'Other': 'pink'
             }
-        elif 'Eurovision Debut Year':
+        elif group == 'Eurovision Debut Year':
             symbols = {
                 '1950s-1960s': 'circle',
                 '1970s-1980s': 'square',
@@ -491,6 +497,17 @@ def create_viso(dfs, selected_year, group, selected_country):
                 '1990s-2000s': 'white',
                 '2010s-2020s': 'white'
             }
+        elif group == 'Semi Final':
+            symbols = {
+                'Top 5/Host': 'circle',
+                "1st Semi Final": 'square',
+                "2nd Semi Final": 'star'
+            }
+            colors = {
+                'Top 5/Host': 'lightgreen',
+                "1st Semi Final": 'lightgreen',
+                "2nd Semi Final": 'lightgreen'
+            }
         else:
             symbols ={}
             colors = {}
@@ -504,7 +521,7 @@ def create_viso(dfs, selected_year, group, selected_country):
             hover_name='country',
             hover_data={'score_scaled': False, group: False},
             custom_data=['country', 'Total Points', group],
-            color_continuous_scale='plasma',  # Single color scale
+            color_continuous_scale='magenta',  # Single color scale
             labels={'Total Points': 'Total Points', group: 'Group'},
             width=1800,
             height=550,
@@ -513,7 +530,7 @@ def create_viso(dfs, selected_year, group, selected_country):
 
         hover_template = (
                 '<b>Country:</b> %{customdata[0]}<br>' +
-                '<b>Average Score:</b> %{customdata[1]:.2f}<br>' +
+                '<b>Total Points:</b> %{customdata[1]:.2f}<br>' +
                 '<b>Group:</b> %{customdata[2]}<br>'
         )
         map_viso.update_traces(hovertemplate=hover_template)
@@ -556,10 +573,10 @@ def create_viso(dfs, selected_year, group, selected_country):
                 itemsizing='constant'
             ),
             coloraxis_colorbar=dict(
-                title='Average Score (scaled)',
-                x=1,
-                y=0.3,
-                len=0.5,  # Adjust the length (relative to the plot height)
+                title='Total Points (scaled)',
+                x=0.99,
+                y=0.4,
+                len=0.7,  # Adjust the length (relative to the plot height)
             )
         )
     else:
@@ -573,7 +590,7 @@ def create_viso(dfs, selected_year, group, selected_country):
             hover_name='country',
             hover_data={'score_scaled': False},
             custom_data=['country', 'Total Points'],
-            color_continuous_scale='plasma',  # Single color scale
+            color_continuous_scale='magenta',  # Single color scale
             # title='Choropleth Map of Average Scores by Country',
             labels={'Total Points': 'Total Points'},
             width=1800,
@@ -581,18 +598,18 @@ def create_viso(dfs, selected_year, group, selected_country):
         )
         hover_template = (
                 '<b>Country:</b> %{customdata[0]}<br>' +
-                '<b>Average Score:</b> %{customdata[1]:.2f}<br>'
+                '<b>Total Points:</b> %{customdata[1]:.2f}<br>'
         )
         map_viso.update_traces(hovertemplate=hover_template)
         map_viso.update_layout(
             coloraxis_colorbar=dict(
-                title='Average Score (scaled)',
+                title='Total Points (scaled)',
                 x=1,
                 y=0.5,
                 len=1,  # Adjust the length (relative to the plot height)
             )
         )
-    map_viso.update_layout(template='plotly_dark+presentation')
+    map_viso.update_layout(template='plotly_white')
     # Update geos and display the chart
     map_viso.update_geos(projection_type="natural earth")
 
