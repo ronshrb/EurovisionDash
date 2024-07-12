@@ -2,7 +2,6 @@ streamlit
 plotly
 pandas
 numpy
-pandasql
 plotly.express
 sklearn.preprocessing
 plotly.graph_objects
