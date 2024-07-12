@@ -3,4 +3,6 @@ plotly
 pandas
 numpy
 pandasql
-sklearn
+plotly.express
+sklearn.preprocessing
+plotly.graph_objects
