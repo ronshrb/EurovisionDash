@@ -7,6 +7,7 @@ import map_viso as mv
 import pie_viso as pv
 
 
+
 st.set_page_config(layout="wide")
 # CSS for background color
 # background_color = """
@@ -19,7 +20,29 @@ st.set_page_config(layout="wide")
 #
 # # Inject CSS into the Streamlit app
 # st.markdown(background_color, unsafe_allow_html=True)
-st.title("Eurovision: Road To The First Place Through Visualizations")
+# st.title("Road To The First Place Through Visualizations")
+# Center align content
+# Center align content
+st.markdown("""
+    <style>
+    .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    </style>
+    """, unsafe_allow_html=True)
+
+image_path = 'logo.png'  # Replace with the path to your PNG image file
+
+st.image(image_path, caption='', use_column_width=True)
+col1, col2, col3 = st.columns([1.18,3,1])
+with col2:
+    st.markdown("### Road To The First Place Through Visualizations")
+
 
 # # Sidebar for filtering
 st.sidebar.title("Search for a Song")
@@ -118,8 +141,8 @@ dfs = {
 }
 
 years = [2016, 2017, 2018, 2019, 2021, 2022, 2023]
-col1, col2, col3, col4, col5 = st.columns(5)
-with col1:
+col1, col2, col3, col4, col5 = st.columns([1,1,3,1,1])
+with col3:
     selected_years = st.select_slider(
         'Filter by range of years:',
         options=years,
@@ -164,7 +187,7 @@ with col1:
 #     value=(2016,2022)
 # )
 st.markdown("### Average Score by Country")
-dataset_options = ['No Groups', 'Eurovision Debut Year', 'Region', 'Economy Level']
+dataset_options = ['No Groups', 'Eurovision Debut Year', 'Economy Level', 'Semi Final']
 selected_years_for_map = [year for year in range(*selected_years)]
 if 2022 in selected_years_for_map:
     selected_years_for_map.remove(2020)
