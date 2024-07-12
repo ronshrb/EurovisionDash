@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 import numpy as np
-from pandasql import sqldf
+from libs.pandasql import sqldf
 import map_viso as mv
 import pie_viso as pv
 
