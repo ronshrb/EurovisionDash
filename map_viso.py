@@ -311,7 +311,7 @@ def create_viso(dfs, selected_year, group, selected_country):
         LEFT JOIN area_df as ad ON a.country=ad.country
     """
     scores_and_area = sqldf(query, locals())
-    eco_classes = pd.read_excel('Data\OGHIST.xlsx', sheet_name=2, skiprows=5)
+    eco_classes = pd.read_excel(r'Data\OGHIST.xlsx', sheet_name=2, skiprows=5)
     filtered_eco_classes = eco_classes[eco_classes['Data for calendar year :'].isin(scores['country'])][
         ['Data for calendar year :', 2016, 2017, 2018, 2019, 2021, 2022, 2023]]
     eco_classes = pd.melt(filtered_eco_classes, id_vars=['Data for calendar year :'],
