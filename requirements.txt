@@ -1,7 +1,6 @@
 streamlit
-plotly.graph_objects
+plotly
 pandas
 numpy
 pandasql
-sklearn.preprocessing
-plotly.express
+sklearn
