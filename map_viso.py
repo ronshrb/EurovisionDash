@@ -1,4 +1,4 @@
-from pandasql import sqldf
+from libs.pandasql import sqldf
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import plotly.express as px
