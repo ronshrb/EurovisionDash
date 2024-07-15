@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import additional_data as ad
 
-def create_viso(df, selected_year, group, selected_country):
+def create_viso(df, selected_year, group, selected_country, colorblind_mode=False):
 
     # turn country_coor into df
     data = [(country, coords[0], coords[1]) for country, coords in ad.country_coor.items()]
@@ -13,7 +13,7 @@ def create_viso(df, selected_year, group, selected_country):
 
     scores = df
     # filter by the chosen year
-    scores = scores[scores['year']==selected_year]
+    scores = scores[scores['year'] == selected_year]
     scores = scores.dropna(subset=['final_total_points'])
     scores['semi_final'] = scores['semi_final'].replace('-', '0')
 
@@ -84,15 +84,21 @@ def create_viso(df, selected_year, group, selected_country):
 
     # categorize total points
     bins = [0, 50, 150, 250, 350, 450, 550, 650]
-    colors = ['#ffffd4', '#fee391', '#fec44f', '#fe9929', '#ec7014', '#cc4c02', '#8c2d04']
+
+    # Define colors based on colorblind_mode
+    if colorblind_mode:
+        colors = ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7']
+    else:
+        colors = ['#ffffd4', '#fee391', '#fec44f', '#fe9929', '#ec7014', '#cc4c02', '#8c2d04']
+
     bin_labels = [f'{bins[i]} - {bins[i + 1]}' for i in range(len(bins) - 1)]
-    color_map = {}
-    for bin_label in bin_labels:
-        color_map[bin_label] = colors[bin_labels.index(bin_label)]
+    color_map = {bin_label: colors[i] for i, bin_label in enumerate(bin_labels)}
+
     final_df['Total Points Range'] = pd.cut(final_df['Total Points'], bins=bins, labels=bin_labels, precision=0, include_lowest=True)
     final_df['Total Points Range'] = pd.Categorical(final_df['Total Points Range'], categories=bin_labels, ordered=True)
+
     if group != 'No Groups':
-        score_df = final_df.groupby(['country', group])[['Total Points','score_scaled']].mean().reset_index()
+        score_df = final_df.groupby(['country', group])[['Total Points', 'score_scaled']].mean().reset_index()
         score_df.columns = ['country', group, 'Total Points', 'score_scaled']
 
         # colors and shapes for markers
@@ -103,28 +109,43 @@ def create_viso(df, selected_year, group, selected_country):
                 '1990s-2000s': 'cross',
                 '2010s-2020s': 'triangle-up'
             }
-            colors = {
-                '1950s-1960s': '#4daf4a',
-                '1970s-1980s': '#984ea3',
-                '1990s-2000s': '#377eb8',
-                '2010s-2020s': '#e41a1c'
-            }
+            if colorblind_mode:
+                colors = {
+                    '1950s-1960s': '#E69F00',
+                    '1970s-1980s': '#56B4E9',
+                    '1990s-2000s': '#009E73',
+                    '2010s-2020s': '#F0E442'
+                }
+            else:
+                colors = {
+                    '1950s-1960s': '#4daf4a',
+                    '1970s-1980s': '#984ea3',
+                    '1990s-2000s': '#377eb8',
+                    '2010s-2020s': '#e41a1c'
+                }
         elif group == 'Semi Final':
             symbols = {
                 'Top 5/Host': 'circle',
                 "1st Semi Final": 'square',
                 "2nd Semi Final": 'triangle-up'
             }
-            colors = {
-                'Top 5/Host': '#4daf4a',
-                "1st Semi Final": '#984ea3',
-                "2nd Semi Final": '#377eb8'
-            }
+            if colorblind_mode:
+                colors = {
+                    'Top 5/Host': '#E69F00',
+                    "1st Semi Final": '#56B4E9',
+                    "2nd Semi Final": '#009E73'
+                }
+            else:
+                colors = {
+                    'Top 5/Host': '#4daf4a',
+                    "1st Semi Final": '#984ea3',
+                    "2nd Semi Final": '#377eb8'
+                }
         else:
-            symbols ={}
+            symbols = {}
             colors = {}
 
-       # create map plot
+        # create map plot
         map_viso = px.choropleth(
             final_df,
             locations='country',
@@ -141,9 +162,9 @@ def create_viso(df, selected_year, group, selected_country):
         )
 
         hover_template = (
-                '<b>Country:</b> %{customdata[0]}<br>' +
-                '<b>Total Points:</b> %{customdata[1]:.2f}<br>' +
-                '<b>Group:</b> %{customdata[2]}<br>'
+            '<b>Country:</b> %{customdata[0]}<br>' +
+            '<b>Total Points:</b> %{customdata[1]:.2f}<br>' +
+            '<b>Group:</b> %{customdata[2]}<br>'
         )
         map_viso.update_traces(hovertemplate=hover_template)
 
@@ -153,9 +174,9 @@ def create_viso(df, selected_year, group, selected_country):
             lat_values = subset.apply(lambda row: final_df[final_df['country'] == row['country']]['lat'].values[0], axis=1)
             points = subset['Total Points']
             text_values = (
-                    '<b>Country: </b> ' + subset['country'].astype(str) + '<br>' +
-                    '<b>Final Score: </b> ' + points.astype(str) + '<br>' +
-                    '<b>Group:</b>'+chosen_type+'<br>'
+                '<b>Country: </b> ' + subset['country'].astype(str) + '<br>' +
+                '<b>Final Score: </b> ' + points.astype(str) + '<br>' +
+                '<b>Group:</b>' + chosen_type + '<br>'
             )
 
             trace = go.Scattergeo(
@@ -194,15 +215,15 @@ def create_viso(df, selected_year, group, selected_country):
             hover_name='country',
             hover_data={'score_scaled': False},
             custom_data=['country', 'Total Points'],
-            color_discrete_map = color_map,
+            color_discrete_map=color_map,
             labels={'Total Points': 'Total Points'},
             category_orders={'Total Points Range': bin_labels},
             width=1800,
             height=550,
         )
         hover_template = (
-                '<b>Country:</b> %{customdata[0]}<br>' +
-                '<b>Final Score:</b> %{customdata[1]:.2f}<br>'
+            '<b>Country:</b> %{customdata[0]}<br>' +
+            '<b>Final Score:</b> %{customdata[1]:.2f}<br>'
         )
         map_viso.update_traces(hovertemplate=hover_template)
         map_viso.update_layout(
@@ -218,8 +239,9 @@ def create_viso(df, selected_year, group, selected_country):
 
     if selected_country != 'All Countries':
         map_viso.update_geos(
-            center = {"lat": ad.country_coor[selected_country][0], "lon": ad.country_coor[selected_country][1]},
+            center={"lat": ad.country_coor[selected_country][0], "lon": ad.country_coor[selected_country][1]},
             projection_scale=5
         )
 
     return map_viso
+
