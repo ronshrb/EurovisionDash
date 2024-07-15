@@ -109,7 +109,7 @@ with col1:
 
 col1, col2, col3, col4 = st.columns([1,0.7,1,1])
 with col3:
-    modes = ['Total Score', 'Jury Score', 'Televote Score']
+    modes = ['Total Score', 'Jury VS Televote']
     selected_mode = st.selectbox('Select Voting Group:', modes)
 with col1:
     feature = ["style","BPM","energy","danceability","happiness"]
