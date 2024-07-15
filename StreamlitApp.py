@@ -9,7 +9,7 @@ import additional_data as ad
 
 st.set_page_config(
     page_title="Eurovision Dashboard",
-    page_icon="🎶",
+    page_icon="icon.png",
     layout="wide",
     initial_sidebar_state="expanded")
 
