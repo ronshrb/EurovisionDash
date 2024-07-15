@@ -1,4 +1,4 @@
-from pandasql import sqldf
+from libs.pandasql import sqldf
 import plotly.graph_objects as go
 from scipy.stats import trim_mean
 
