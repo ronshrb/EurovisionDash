@@ -107,29 +107,7 @@ else:
     st.sidebar.write("No songs match your search criteria.")
 
 
-col1, col2 = st.columns([0.9,1.1])
-with col2:
-    st.markdown("#### Scores by Running Order & Voting Type")
-with col1:
-    st.markdown("#### Songs (Inner) & Scores (Outer) by Feature")
-
-
-col1, col2, col3, col4 = st.columns([1,0.7,1,1])
-with col3:
-    modes = ['Total Score', 'Jury VS Televote']
-    selected_mode = st.selectbox('Select Voting Group:', modes)
-with col1:
-    feature = ["style","BPM","energy","danceability","happiness"]
-    selected_feature = st.selectbox('Select Feature:', feature)
-
 # visualizations
-pie_viso = pv.create_viso(song_data,selected_feature,colorblind_mode=st.session_state.colorblind_mode)
-col1, col2 = st.columns([0.8,1.2])
-with col1:
-    st.plotly_chart(pie_viso, use_container_width=True)
-with col2:
-    scatter_viso = sv.create_viso(song_data, selected_mode,colorblind_mode=st.session_state.colorblind_mode)
-    st.plotly_chart(scatter_viso, use_container_width=True)
 
 st.markdown("#### Score by Country and Year")
 dataset_options = ['No Groups', 'Eurovision Debut Year', 'Semi Final']
@@ -154,3 +132,28 @@ with col3:
 
 map_viso = mv.create_viso(song_data, selected_year, selected_dataset, selected_country,colorblind_mode=st.session_state.colorblind_mode)
 st.plotly_chart(map_viso, use_container_width=True)
+
+
+col1, col2 = st.columns([0.9,1.1])
+with col2:
+    st.markdown("#### Scores by Running Order & Voting Type")
+with col1:
+    st.markdown("#### Songs (Inner) & Scores (Outer) by Feature")
+
+
+col1, col2, col3, col4 = st.columns([1,0.7,1,1])
+with col3:
+    modes = ['Total Score', 'Jury VS Televote']
+    selected_mode = st.selectbox('Select Voting Group:', modes)
+with col1:
+    feature = ["style","BPM","energy","danceability","happiness"]
+    selected_feature = st.selectbox('Select Feature:', feature)
+    
+pie_viso = pv.create_viso(song_data,selected_feature,colorblind_mode=st.session_state.colorblind_mode)
+col1, col2 = st.columns([0.8,1.2])
+with col1:
+    st.plotly_chart(pie_viso, use_container_width=True)
+with col2:
+    scatter_viso = sv.create_viso(song_data, selected_mode,colorblind_mode=st.session_state.colorblind_mode)
+    st.plotly_chart(scatter_viso, use_container_width=True)
+
