@@ -13,17 +13,13 @@ st.set_page_config(
     page_icon="🎶",
     layout="wide",
     initial_sidebar_state="expanded")
-# alt.themes.enable("dark")
 
-col1, col2, col3 = st.columns([1.5,2.5,1])
+col1, col2, col3 = st.columns([1.1,2.4,1])
 with col2:
-    image_path = 'logo.png'  # Replace with the path to your PNG image file
+    image_path = 'logo2.png' 
 
     st.image(image_path, caption='', use_column_width=False)
-    st.markdown("#### Road To The First Place Through Visualizations")
 
-
-# # Sidebar for filtering
 
 url_list = [{'Song Name': song, 'URL': details['url']} for song, details in ad.urls.items()]
 urls_df = pd.DataFrame(url_list)
