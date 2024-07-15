@@ -7,7 +7,6 @@ import pie_viso as pv
 import scatter_viso as sv
 import additional_data as ad
 
-
 st.set_page_config(
     page_title="Eurovision Dashboard",
     page_icon="🎶",
@@ -16,7 +15,7 @@ st.set_page_config(
 
 col1, col2, col3 = st.columns([1.1,2.4,1])
 with col2:
-    image_path = 'logo2.png' 
+    image_path = 'logo2.png'
 
     st.image(image_path, caption='', use_column_width=False)
 
@@ -45,7 +44,19 @@ search_df = sqldf(query, locals())
 # main filter for years
 years = [2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023]
 
-# col1, col2, col3 = st.columns([1.5, 3, 1.8])
+# Colorblind Mode
+if 'colorblind_mode' not in st.session_state:
+    st.session_state.colorblind_mode = False
+def toggle_colorblind_mode():
+    st.session_state.colorblind_mode = not st.session_state.colorblind_mode
+
+if st.session_state.colorblind_mode:
+    text = 'Colorblind Mode Active'
+else:
+    text = 'Colorblind Mode Disabled'
+
+st.button(text, on_click=toggle_colorblind_mode)
+
 with col1:
     selected_years = st.sidebar.select_slider(
         'Global filter by range of years:',
@@ -110,13 +121,14 @@ with col3:
 with col1:
     feature = ["style","BPM","energy","danceability","happiness"]
     selected_feature = st.selectbox('Select Feature:', feature)
-# Create visualizations
-pie_viso = pv.create_viso(song_data,selected_feature)
+
+# visualizations
+pie_viso = pv.create_viso(song_data,selected_feature,colorblind_mode=st.session_state.colorblind_mode)
 col1, col2 = st.columns([0.8,1.2])
 with col1:
     st.plotly_chart(pie_viso, use_container_width=True)
 with col2:
-    scatter_viso = sv.create_viso(song_data, selected_mode)
+    scatter_viso = sv.create_viso(song_data, selected_mode,colorblind_mode=st.session_state.colorblind_mode)
     st.plotly_chart(scatter_viso, use_container_width=True)
 
 st.markdown("#### Score by Country and Year")
@@ -140,5 +152,5 @@ selected_countries = np.insert(selected_countries, 0, 'All Countries')
 with col3:
     selected_country = st.selectbox('Select country:', selected_countries)
 
-map_viso = mv.create_viso(song_data, selected_year, selected_dataset, selected_country)
+map_viso = mv.create_viso(song_data, selected_year, selected_dataset, selected_country,colorblind_mode=st.session_state.colorblind_mode)
 st.plotly_chart(map_viso, use_container_width=True)
