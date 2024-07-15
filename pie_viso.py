@@ -2,7 +2,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 
-def create_viso(df, feature='style'):
+def create_viso(df, feature='style', colorblind_mode=False):
     scores = df
 
     grouped_data = scores.groupby(feature).agg({
@@ -34,9 +34,15 @@ def create_viso(df, feature='style'):
         grouped_data[feature] = labels
 
     grouped_data_sorted = grouped_data.sort_values(by=['Average Score'])
+
+    # Define colors based on colorblind_mode
+    if colorblind_mode:
+        colors = ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00']
+    else:
+        colors = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
+
     fig = go.Figure()
     # Inner donut chart
-    colors = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
     fig.add_trace(go.Pie(
         labels=grouped_data_sorted[feature],
         values=grouped_data_sorted['Number of Songs'],
@@ -79,6 +85,5 @@ def create_viso(df, feature='style'):
         ),
         plot_bgcolor='rgba(240, 240, 240, 1)'
     )
-
 
     return fig
