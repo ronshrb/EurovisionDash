@@ -112,7 +112,7 @@ with col3:
     modes = ['Total Score', 'Jury Score', 'Televote Score']
     selected_mode = st.selectbox('Select Voting Group:', modes)
 with col1:
-    feature = ["style","BPM","energy","danceability","happiness","acousticness","instrumentalness","liveness","speechiness"]
+    feature = ["style","BPM","energy","danceability","happiness"]
     selected_feature = st.selectbox('Select Feature:', feature)
 # Create visualizations
 pie_viso = pv.create_viso(song_data,selected_feature)
