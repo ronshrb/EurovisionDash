@@ -2,7 +2,8 @@ from libs.pandasql import sqldf
 import plotly.graph_objects as go
 from scipy.stats import trim_mean
 
-def create_viso(df, mode='Total Score'):
+def create_viso(df, mode='Total Score', colorblind_mode=False):
+
     scores = df
     query = """
         SELECT
@@ -38,7 +39,7 @@ def create_viso(df, mode='Total Score'):
             mode='markers',
             marker=dict(
                 size=10,
-                color='#5aae61',
+                color='#5aae61' if not colorblind_mode else '#E69F00',
                 opacity=0.6,
             ),
             text=[f'Country: {country}<br>Year: {year}<br>Running Position: {draw_position}<br>Final Place: {place}'
@@ -55,11 +56,11 @@ def create_viso(df, mode='Total Score'):
             mode='lines+markers',
             marker=dict(
                 size=10,
-                color='#1b7837',
+                color='#1b7837' if not colorblind_mode else '#56B4E9',
             ),
             line=dict(
                 width=2,
-                color='#1b7837',
+                color='#1b7837' if not colorblind_mode else '#56B4E9',
             ),
             text=[f'Running Position: {draw_position}<br>Trimmed Mean Final Place: {place}'
                   for draw_position, place in
@@ -71,7 +72,7 @@ def create_viso(df, mode='Total Score'):
     else:
         # Calculate trimmed mean points and places for each draw position
         trimmed_mean_score = df.groupby('final_draw_position')['final_televote_points'].apply(
-            lambda x: round(trim_mean(x, proportiontocut=0.1),2)).reset_index()
+            lambda x: round(trim_mean(x, proportiontocut=0.1), 2)).reset_index()
 
         # Sort the DataFrames by final_draw_position
         df_sorted = df.sort_values('final_draw_position')
@@ -85,7 +86,7 @@ def create_viso(df, mode='Total Score'):
             mode='markers',
             marker=dict(
                 size=10,
-                color='#fdae61',
+                color='#fdae61' if not colorblind_mode else '#E69F00',
                 opacity=0.6,
             ),
             text=[f'Country: {country}<br>Year: {year}<br>Running Position: {draw_position}<br>Final Place: {place}<br> Type: Televote'
@@ -95,14 +96,13 @@ def create_viso(df, mode='Total Score'):
             name='Individual Televote Score'
         ))
 
-
         fig.add_trace(go.Scatter(
             x=df_sorted['final_draw_position'],
             y=df_sorted['final_jury_points'],
             mode='markers',
             marker=dict(
                 size=10,
-                color='#7570b3',
+                color='#7570b3' if not colorblind_mode else '#009E73',
                 opacity=0.6,
             ),
             text=[f'Country: {country}<br>Year: {year}<br>Running Position: {draw_position}<br>Final Place: {place}<br> Type: Jury'
@@ -118,11 +118,11 @@ def create_viso(df, mode='Total Score'):
             mode='lines+markers',
             marker=dict(
                 size=10,
-                color='#e66101',
+                color='#e66101' if not colorblind_mode else '#0072B2',
             ),
             line=dict(
                 width=2,
-                color='#e66101',
+                color='#e66101' if not colorblind_mode else '#0072B2',
             ),
             text=[f'Running Position: {draw_position}<br>Trimmed Mean Final Place: {place}<br> Type: Televote'
                   for draw_position, place in
@@ -131,12 +131,10 @@ def create_viso(df, mode='Total Score'):
             hoverinfo='text',
             name='Trimmed Mean Televote Score'
         ))
-        # Calculate trimmed mean points and places for each draw position
-        trimmed_mean_score = df.groupby('final_draw_position')['final_jury_points'].apply(
-            lambda x: round(trim_mean(x, proportiontocut=0.1),2)).reset_index()
 
-        # Sort the DataFrames by final_draw_position
-        df_sorted = df.sort_values('final_draw_position')
+        trimmed_mean_score = df.groupby('final_draw_position')['final_jury_points'].apply(
+            lambda x: round(trim_mean(x, proportiontocut=0.1), 2)).reset_index()
+
         trimmed_mean_score_sorted = trimmed_mean_score.sort_values('final_draw_position')
         fig.add_trace(go.Scatter(
             x=trimmed_mean_score_sorted['final_draw_position'],
@@ -144,11 +142,11 @@ def create_viso(df, mode='Total Score'):
             mode='lines+markers',
             marker=dict(
                 size=10,
-                color='#762a83',
+                color='#762a83' if not colorblind_mode else '#CC79A7',
             ),
             line=dict(
                 width=2,
-                color='#762a83',
+                color='#762a83' if not colorblind_mode else '#CC79A7',
             ),
             text=[f'Running Position: {draw_position}<br>Trimmed Mean Final Place: {place}<br> Type: Jury'
                   for draw_position, place in
@@ -158,7 +156,6 @@ def create_viso(df, mode='Total Score'):
         ))
 
     fig.update_layout(
-        # title='Final Score by Running Order and Type of Votes',
         xaxis_title='Running Order',
         yaxis_title='Total Score',
         xaxis=dict(
@@ -194,3 +191,4 @@ def create_viso(df, mode='Total Score'):
     )
 
     return fig
+
