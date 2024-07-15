@@ -110,6 +110,7 @@ else:
 # visualizations
 
 st.markdown("#### Score by Country and Year")
+st.markdown("Shows final scores for each country in each year, and geographical and categorical patterns")
 dataset_options = ['No Groups', 'Eurovision Debut Year', 'Semi Final']
 selected_years_for_map = [year for year in range(*selected_years)]
 selected_years_for_map.append(selected_years[-1])  # add the last year
@@ -137,9 +138,10 @@ st.plotly_chart(map_viso, use_container_width=True)
 col1, col2 = st.columns([0.9,1.1])
 with col2:
     st.markdown("#### Scores by Running Order & Voting Type")
+    st.markdown("Shows if the running order affects the score given to a country")
 with col1:
     st.markdown("#### Songs (Inner) & Scores (Outer) by Feature")
-
+    st.markdown("Shows which features are the most used and what effect they have on the final score")
 
 col1, col2, col3, col4 = st.columns([1,0.7,1,1])
 with col3:
