@@ -197,13 +197,19 @@ def create_viso(df, selected_year, group, selected_country, colorblind_mode=Fals
 
             map_viso.add_trace(trace)
 
-        map_viso.update_layout(
+map_viso.update_layout(
             legend=dict(
                 x=1,
                 y=0.97,
                 traceorder='normal',
-                title=f'Final Score & {group}',
-                itemsizing='constant'
+                title=dict(text=f'Final Score & {group}',
+                           font=dict(
+                               size=18)
+                           ),
+                itemsizing='constant',
+                font=dict(
+                    size=15
+                ),
             )
         )
     else:
@@ -227,12 +233,23 @@ def create_viso(df, selected_year, group, selected_country, colorblind_mode=Fals
         )
         map_viso.update_traces(hovertemplate=hover_template)
         map_viso.update_layout(
+            legend=dict(
+                font=dict(
+                    size=15
+                ),
+                title=dict(
+                    text='Final Score',
+                    font=dict(
+                        size=18
+                    )
+                )
+            ),
             coloraxis_colorbar=dict(
                 title='Final Score',
                 x=1,
                 y=0.5,
                 len=1,
-            ),
+            )
         )
     map_viso.update_layout(template='plotly_white')
     map_viso.update_geos(projection_type="natural earth")
