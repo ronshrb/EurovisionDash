@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 import pandas as pd
-from pandasql import sqldf
+from libs.pandasql import sqldf
 def create_viso(df, colorblind_mode=False):
     # create a new column that says if a country is a host or not
     query = """
