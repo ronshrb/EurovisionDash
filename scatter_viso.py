@@ -176,12 +176,12 @@ def create_viso(df, mode='Total Score', colorblind_mode=False):
         ),
         showlegend=True,
         width=600,
-        height=500,
+        height=650,
         legend=dict(
             font=dict(
                 size=15
             ),
-            x=0.8,
+            x=0.08,
             y=1.2,
             bgcolor='rgba(0,0,0,0)',
             xanchor='center',
