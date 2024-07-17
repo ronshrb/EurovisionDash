@@ -1,3 +1,4 @@
+
 st.set_page_config(
     page_title="Eurovision Dashboard",
     page_icon = 'icon.png',
