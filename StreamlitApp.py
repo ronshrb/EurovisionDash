@@ -1,3 +1,12 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+from pandasql import sqldf
+import pie_viso as pv
+import scatter_viso as sv
+import additional_data as ad
+import map_viso as mv2
+import box_viso as bv
 
 st.set_page_config(
     page_title="Eurovision Dashboard",
