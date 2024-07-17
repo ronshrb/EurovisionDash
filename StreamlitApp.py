@@ -1,13 +1,3 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-from libs.pandasql import sqldf
-import pie_viso as pv
-import scatter_viso as sv
-import additional_data as ad
-import map_viso as mv2
-import box_viso as bv
-
 st.set_page_config(
     page_title="Eurovision Dashboard",
     page_icon = 'icon.png',
@@ -109,20 +99,15 @@ else:
     st.sidebar.write("No songs match your search criteria.")
 
 # visualizations
-col1, col2 = st.columns([1.35,0.65])
-with col1:
-    st.markdown("#### Average Score by Country and Eurovision Debut Year")
-    st.markdown("Shows average total points for each country and their eurovision debut year")
-    dataset_options = ['No Groups', 'Eurovision Debut Year', 'Semi Final']
-    selected_years_for_map = [year for year in range(*selected_years)]
-    selected_years_for_map.append(selected_years[-1])  # add the last year
-    if (2019 in selected_years_for_map) and (2021 in selected_years_for_map):
+st.markdown("#### Average Score by Country and Eurovision Debut Year")
+st.markdown("Shows average total points for each country and their eurovision debut year")
+dataset_options = ['No Groups', 'Eurovision Debut Year', 'Semi Final']
+selected_years_for_map = [year for year in range(*selected_years)]
+selected_years_for_map.append(selected_years[-1])  # add the last year
+if (2019 in selected_years_for_map) and (2021 in selected_years_for_map):
         selected_years_for_map.remove(2020)
-    if (2012 in selected_years_for_map) and (2014 in selected_years_for_map):
+if (2012 in selected_years_for_map) and (2014 in selected_years_for_map):
         selected_years_for_map.remove(2013)
-with col2:
-    st.markdown("#### Final Score by Semi Final/Host/Top 5")
-    st.markdown("Shows statics of total points by the way the country qualified for the final")
 
 selected_countries = song_data[(song_data['qualified_10'] == '1') | (song_data['qualified_10'] == '-')][
             'country'].unique()
@@ -133,39 +118,40 @@ with col1:
     selected_country = st.selectbox('Select country:', selected_countries)
 
 
-col1, col2 = st.columns([1.35,0.65])
-with col1:
-    map_viso = mv2.create_viso(song_data, selected_year, selected_country,
+map_viso = mv2.create_viso(song_data, selected_year, selected_country,
                                colorblind_mode=st.session_state.colorblind_mode)
-    st.plotly_chart(map_viso, use_container_width=True)
-with col2:
-    bars_viso = bv.create_viso(song_data, colorblind_mode=st.session_state.colorblind_mode)
-    st.plotly_chart(bars_viso, use_container_width=True)
+st.plotly_chart(map_viso, use_container_width=True)
+
 
 col1, col2 = st.columns([0.9,1.1])
 with col2:
-    st.markdown("#### Scores by Running Order & Voting Type")
-    st.markdown("Shows if the running order affects the score given to a country")
+        st.markdown("#### Final Score by Semi Final/Host/Top 5")
+        st.markdown("Shows statics of total points by the way the country qualified for the final")
 with col1:
     st.markdown("#### Songs (Inner) & Average Scores (Outer) by Feature")
     st.markdown("Shows which features are the most used and what effect they have on the final score")
 
 
 col1, col2, col3, col4 = st.columns([1,0.7,1,1])
-with col3:
-    modes = ['Total Score', 'Jury VS Televote']
-    selected_mode = st.selectbox('Select Voting Group:', modes)
+
 with col1:
     feature = ["style","BPM","energy","danceability","happiness"]
     selected_feature = st.selectbox('Select Feature:', feature)
 
 pie_viso = pv.create_viso(song_data,selected_feature,colorblind_mode=st.session_state.colorblind_mode)
-col1, col2 = st.columns([0.8,1.2])
+col1, col2 = st.columns([0.9,1.1])
 with col1:
     st.plotly_chart(pie_viso, use_container_width=True)
 with col2:
-    scatter_viso = sv.create_viso(song_data, selected_mode,colorblind_mode=st.session_state.colorblind_mode)
-    st.plotly_chart(scatter_viso, use_container_width=True)
+    bars_viso = bv.create_viso(song_data, colorblind_mode=st.session_state.colorblind_mode)
+    st.plotly_chart(bars_viso, use_container_width=True)
 
 
-
+st.markdown("#### Scores by Running Order & Voting Type")
+st.markdown("Shows if the running order affects the score given to a country")
+col1, col2, col3, col4 = st.columns([1,0.7,1,1])
+with col1:
+    modes = ['Total Score', 'Jury VS Televote']
+    selected_mode = st.selectbox('Select Voting Group:', modes)
+scatter_viso = sv.create_viso(song_data, selected_mode,colorblind_mode=st.session_state.colorblind_mode)
+st.plotly_chart(scatter_viso, use_container_width=True)
