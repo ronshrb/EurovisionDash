@@ -62,7 +62,7 @@ def create_viso(df, feature='style', colorblind_mode=False):
     fig.update_layout(
         showlegend=False,
         width=600,
-        height=500,
+        height=600,
         legend=dict(
             font=dict(
                 size=15
