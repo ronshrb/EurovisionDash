@@ -1,0 +1,9 @@
+{
+	"name": "DataFactoryISSolutionsTeam",
+	"location": "westus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "e9434c51-2e77-4ea6-bb86-d2713d0cbb50",
+		"tenantId": "46c98d88-e344-4ed4-8496-4ed7712e255d"
+	}
+}
